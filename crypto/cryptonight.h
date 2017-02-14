@@ -27,7 +27,7 @@ void cryptonight_free_ctx(cryptonight_ctx* ctx);
 void cryptonight_hash_ctx(const void* input, size_t len, void* output, cryptonight_ctx* ctx);
 void cryptonight_hash_ctx_soft(const void* input, size_t len, void* output, cryptonight_ctx* ctx);
 void cryptonight_hash_ctx_np(const void* input, size_t len, void* output, cryptonight_ctx* ctx);
-void cryptonight_double_hash_ctx(const void*  input, size_t len, void* output, cryptonight_ctx* __restrict ctx0, cryptonight_ctx* __restrict ctx1, cryptonight_ctx* __restrict ctx2, cryptonight_ctx* __restrict ctx3, cryptonight_ctx* __restrict ctx4);
+void cryptonight_double_hash_ctx(const void*  input, size_t len, void* output, cryptonight_ctx* __restrict ctx0, cryptonight_ctx* __restrict ctx1, cryptonight_ctx* __restrict ctx2, cryptonight_ctx* __restrict ctx3, cryptonight_ctx* __restrict ctx4, cryptonight_ctx* __restrict ctx5, cryptonight_ctx* __restrict ctx6, cryptonight_ctx* __restrict ctx7);
 
 #ifdef __cplusplus
 }
