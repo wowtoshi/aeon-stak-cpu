@@ -174,20 +174,20 @@ void cryptonight_free_ctx(cryptonight_ctx* ctx)
 
 void cryptonight_hash_ctx(const void* input, size_t len, void* output, cryptonight_ctx* ctx)
 {
-	cryptonight_hash<0x80000, MEMORY, true, false>(input, len, output, ctx);
+	cryptonight_hash<0x40000, MEMORY, true, false>(input, len, output, ctx);
 }
 
 void cryptonight_hash_ctx_soft(const void* input, size_t len, void* output, cryptonight_ctx* ctx)
 {
-	cryptonight_hash<0x80000, MEMORY, true, true>(input, len, output, ctx);
+	cryptonight_hash<0x40000, MEMORY, true, true>(input, len, output, ctx);
 }
 
 void cryptonight_hash_ctx_np(const void* input, size_t len, void* output, cryptonight_ctx* ctx)
 {
-	cryptonight_hash<0x80000, MEMORY, false, false>(input, len, output, ctx);
+	cryptonight_hash<0x40000, MEMORY, false, false>(input, len, output, ctx);
 }
 
 void cryptonight_double_hash_ctx(const void*  input, size_t len, void* output, cryptonight_ctx* __restrict ctx0, cryptonight_ctx* __restrict ctx1, cryptonight_ctx* __restrict ctx2, cryptonight_ctx* __restrict ctx3, cryptonight_ctx* __restrict ctx4, cryptonight_ctx* __restrict ctx5, cryptonight_ctx* __restrict ctx6, cryptonight_ctx* __restrict ctx7)
 {
-	cryptonight_double_hash<0x80000, MEMORY, false, false>(input, len, output, ctx0, ctx1, ctx2, ctx3, ctx4, ctx5, ctx6, ctx7);
+	cryptonight_double_hash<0x40000, MEMORY, false, false>(input, len, output, ctx0, ctx1, ctx2, ctx3, ctx4, ctx5, ctx6, ctx7);
 }
