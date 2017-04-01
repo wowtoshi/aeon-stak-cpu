@@ -457,7 +457,7 @@ void minethd::work_main()
 
 void minethd::double_work_main()
 {
-	int SIZE = 20;
+	int SIZE = 2;
 	cryptonight_ctx* ctx[SIZE];
 	uint64_t iCount = 0;
 	uint64_t *piHashVal[SIZE];
