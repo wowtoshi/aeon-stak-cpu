@@ -1,7 +1,9 @@
 ### XMR-Stak-CPU - Monero mining software
 
-XMR-Stak is a universal Stratum pool miner. This is the CPU-mining version, but I'm planning to release Nvidia and AMD GPU versions too.
+XMR-Stak is a universal Stratum pool miner. This is the CPU-mining version; there is also an [AMD GPU version](https://github.com/fireice-uk/xmr-stak-amd) and an [NVIDA GPU version](https://github.com/fireice-uk/xmr-stak-nvidia)
 
+#### HTML reports
+<img src="https://gist.githubusercontent.com/fireice-uk/2da301131ac01695ff79539a27b81d68/raw/4c09cdeee86f94df2e9dd86b927e64aded6184f5/xmr-stak-cpu-hashrate.png" width="260"> <img src="https://gist.githubusercontent.com/fireice-uk/2da301131ac01695ff79539a27b81d68/raw/4c09cdeee86f94df2e9dd86b927e64aded6184f5/xmr-stak-cpu-results.png" width="260"> <img src="https://gist.githubusercontent.com/fireice-uk/2da301131ac01695ff79539a27b81d68/raw/4c09cdeee86f94df2e9dd86b927e64aded6184f5/xmr-stak-cpu-connection.png" width="260">
 
 #### Usage on Windows 
 1) Edit the config.txt file to enter your pool login and password. 
@@ -12,32 +14,37 @@ XMR-Stak should compile on any C++11 compliant compiler. Windows compiler is ass
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA256
 
-Windows binary release checksums
+sha1sum
+d34a0ba0dd7b3b1f900a7e02772e197e974b4a73  libeay32.dll
+2ee9966a0fc163da58408d91be36b84fa287c10b  ssleay32.dll
+c406d5fbe4791b73271ab17a9b720fd15bcf5235  xmr-stak-cpu.exe
+a6a63f70e19819ef9f65603267308ad9360c8256  xmr-stak-cpu-notls.exe
 
-sha1sum xmr-stak-cpu.exe
-32f551c891040eda2c25e18e6287665471a5a653  xmr-stak-cpu.exe
+sha3sum
+05003137a87313c81d6c348c9b96411c95d48dc22c35f36c39129747  libeay32.dll
+133c065d9ef2c93396382e2ba5d8c3ca8c6a57c6beb0159cb9a4b6c5  ssleay32.dll
+4d57aec0df1a9a3cb843b49aaebef3546fedd17a6adf7de77890909f  xmr-stak-cpu.exe
+739e68fe4f76fe5d4ff314693f28baf0a166ca8e46dee0b0cd044370  xmr-stak-cpu-notls.exe
 
-sha3sum xmr-stak-cpu.exe
-ed12841738c899a3eb61f51787aa670c25b64ce3c5a626717e6a8f6b  xmr-stak-cpu.exe
-
-date
-Mon 16 Jan 15:13:25 GMT 2017
+$ date
+Wed 15 Mar 14:39:01 GMT 2017
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQEcBAEBCAAGBQJYfONvAAoJEPsk95p+1Bw02coH/0by+VMK76gnmpNjIxDcphkV
-S1GG+f0sIAYUrGpoMCJTXbr7hU3Na+grTbt6xLM2Tb0xJjX4Mc47Cixajzy7+TTx
-R2+CvBRl8LG9zob6JNiohvxD1+SK7RWDKWenFyDlr9BewgE/ArqZM+16BQBrLP9H
-XIWy1wh/lcSYuS548tnUYdNOmEnR9TqA454M4r8PED85HSpNmvI+eG8fZ8OK471C
-3yMupjYlAbiEBT+gE6bZwLeeCH9NO2gGeBAb31w8RBsMRjy+VvhFhTOoJwZbXj9e
-sMUwNBu+fLVoilMVvp8SDpQ7Uw/WFT085N2eJiCCuEbHgFAwM3uwD6VHz3eXd0s=
-=QJQj
+iQEcBAEBCAAGBQJYyVJUAAoJEPsk95p+1Bw0sNIIAIPISmp5ut/zb7rlnbfxkrZf
+PRuNF1g7+qMen1bUi9FTwoTeebz468kj+fbk8fKljYMyctOrgxbTkPFl7ag1k1UH
+rjeiRMVWlw0FBEX+0n9D9Ots+whYmwYXXu8eXJFjyc9nzRxzJl//hLw7ASpwOBRx
+C+HcFXJSEcUr5RcDxAR0jK0xHQiu82mp4QxxR1GpIRWfsbqQn+OOClhtedLFed/Y
+rXivP2XH0SEAhZfa/JUMCcwkqldMOKotZqhZwOjLLGWkKGYUM04U9N58bGIg7tDj
+lBoYbHZRpcWUfDO8o2y+ZQIs+yzMoJHHBBXB9fsHlwq62PTtzjsEVwB2aq9ABzk=
+=S8cQ
 -----END PGP SIGNATURE-----
+
 ```
 
-#### Usage on Linux
+#### Usage on Linux (Debian-based distros)
 ```
-    sudo apt-get install libmicrohttpd-dev
+    sudo apt-get install libmicrohttpd-dev libssl-dev cmake build-essential
     cmake .
     make
 ```
@@ -60,58 +67,14 @@ Performance is nearly identical to the closed source paid miners. Here are some 
 * **Dual X5650** - 466 H/s (depends on NUMA)
 * **Dual E5640** - 365 H/s (same as above)
 
-#### Example reports
-```
-HASHRATE REPORT
-| ID | 2.5s |  60s |  15m | ID | 2.5s |  60s |  15m |
-|  0 | 31.7 | 30.7 | 30.5 |  1 | 30.6 | 30.6 | 30.6 |
-|  2 | 30.3 | 30.6 | 30.6 |  3 | 30.6 | 30.6 | 30.6 |
-|  4 | 35.3 | 35.5 | 35.6 |  5 | 35.7 | 35.7 | 35.7 |
-|  6 | 35.4 | 35.6 | 35.6 |  7 | 35.7 | 35.7 | 35.7 |
-|  8 | 31.7 | 30.7 | 30.5 |  9 | 30.6 | 30.6 | 30.6 |
-| 10 | 30.4 | 30.6 | 30.6 | 11 | 30.6 | 30.6 | 30.6 |
------------------------------------------------------
-Totals:   388.7 388.7 388.7 H/s
-Highest:  388.7 H/s
-```
-
-```
-RESULT REPORT
-Difficulty       : 8192
-Good results     : 5825 / 5826 (100.0 %)
-Avg result time  : 10.3 sec
-Pool-side hashes : 22683648
-
-Top 10 best results found:
-|  0 |         15407238 |  1 |         12699745 |
-|  2 |         12194202 |  3 |          6999845 |
-|  4 |          5533935 |  5 |          5315338 |
-|  6 |          4700351 |  7 |          4500227 |
-|  8 |          4023567 |  9 |          4021473 |
-
-Error details:
-| Count |                       Error text |           Last seen |
-|     1 | [NETWORK ERROR]                  | 2017-01-02 21:29:15 |
-```
-
-```
-CONNECTION REPORT
-Connected since : 2017-01-02 21:29:40
-Pool ping time  : 288 ms
-
-Network error log:
-| Date                |                                                       Error text |
-| 2017-01-02 21:29:15 | CALL error: Timeout while waiting for a reply                    |
-| 2017-01-02 21:29:30 | CONNECT error: GetAddrInfo: Name or service not known            |
-```
-
 #### Default dev donation
 By default the miner will donate 1% of the hashpower (1 minute in 100 minutes) to my pool. If you want to change that, edit **donate-level.h** before you build the binaries.
 
 If you want to donate directly to support further development, here is my wallet
-* 4581HhZkQHgZrZjKeCfCJxZff9E3xCgHGF25zABZz7oR71TnbbgiS7sK9jveE6Dx6uMs2LwszDuvQJgRZQotdpHt1fTdDhk
 
-
+```
+4581HhZkQHgZrZjKeCfCJxZff9E3xCgHGF25zABZz7oR71TnbbgiS7sK9jveE6Dx6uMs2LwszDuvQJgRZQotdpHt1fTdDhk
+```
 
 #### PGP Key
 ```

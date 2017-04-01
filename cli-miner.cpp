@@ -11,6 +11,14 @@
   *
   * You should have received a copy of the GNU General Public License
   * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  *
+  * Additional permission under GNU GPL version 3 section 7
+  *
+  * If you modify this Program, or any covered work, by linking or combining
+  * it with OpenSSL (or a modified version of that library), containing parts
+  * covered by the terms of OpenSSL License and SSLeay License, the licensors
+  * of this Program grant you additional permission to convey the resulting work.
+  *
   */
 
 #include "executor.h"
@@ -23,6 +31,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#ifndef CONF_NO_TLS
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+#endif
 
 //Do a press any key for the windows folk. *insert any key joke here*
 #ifdef _WIN32
@@ -43,6 +56,15 @@ void do_benchmark();
 
 int main(int argc, char *argv[])
 {
+#ifndef CONF_NO_TLS
+	SSL_library_init();
+	SSL_load_error_strings();
+	ERR_load_BIO_strings();
+	ERR_load_crypto_strings();
+	SSL_load_error_strings();
+	OpenSSL_add_all_digests();
+#endif
+
 	const char* sFilename = "config.txt";
 	bool benchmark_mode = false;
 
@@ -109,6 +131,9 @@ int main(int argc, char *argv[])
 	printer::inst()->print_str("'c' - connection\n");
 	printer::inst()->print_str("-------------------------------------------------------------------\n");
 
+	if(strlen(jconf::inst()->GetOutputFile()) != 0)
+		printer::inst()->open_logfile(jconf::inst()->GetOutputFile());
+
 	executor::inst()->ex_start();
 
 	int key;
@@ -157,7 +182,7 @@ void do_benchmark()
 	for (uint32_t i = 0; i < pvThreads->size(); i++)
 	{
 		double fHps = pvThreads->at(i)->iHashCount;
-		fHps /= (pvThreads->at(i)->iTimestamp - iStartStamp) / 1000.0d;
+		fHps /= (pvThreads->at(i)->iTimestamp - iStartStamp) / 1000.0;
 
 		printer::inst()->print_msg(L0, "Thread %u: %.1f H/S", i, fHps);
 		fTotalHps += fHps;

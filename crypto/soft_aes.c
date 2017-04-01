@@ -11,6 +11,14 @@
   *
   * You should have received a copy of the GNU General Public License
   * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  *
+  * Additional permission under GNU GPL version 3 section 7
+  *
+  * If you modify this Program, or any covered work, by linking or combining
+  * it with OpenSSL (or a modified version of that library), containing parts
+  * covered by the terms of OpenSSL License and SSLeay License, the licensors
+  * of this Program grant you additional permission to convey the resulting work.
+  *
   */
 
 /*
@@ -186,6 +194,13 @@ static inline void sub_word(uint8_t* key)
 	key[2] = Sbox[key[2]];
 	key[3] = Sbox[key[3]];
 }
+
+#ifdef __clang__
+uint32_t _rotr(uint32_t value, uint32_t amount)
+{
+	return (value >> amount) | (value << ((32 - amount) & 31));
+}
+#endif
 
 __m128i soft_aeskeygenassist(__m128i key, uint8_t rcon)
 {

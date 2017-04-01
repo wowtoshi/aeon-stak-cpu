@@ -11,6 +11,14 @@
   *
   * You should have received a copy of the GNU General Public License
   * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  *
+  * Additional permission under GNU GPL version 3 section 7
+  *
+  * If you modify this Program, or any covered work, by linking or combining
+  * it with OpenSSL (or a modified version of that library), containing parts
+  * covered by the terms of OpenSSL License and SSLeay License, the licensors
+  * of this Program grant you additional permission to convey the resulting work.
+  *
   */
 
 extern "C"
@@ -30,6 +38,10 @@ extern "C"
 #else
 #include <malloc.h>
 #endif // __GNUC__
+
+#if defined(__APPLE__)
+#include <mach/vm_statistics.h>
+#endif
 
 #ifdef _WIN32
 #include <windows.h>
@@ -129,8 +141,14 @@ cryptonight_ctx* cryptonight_alloc_ctx(size_t use_fast_mem, size_t use_mlock, al
 		return ptr;
 	}
 #else
+
+#if defined(__APPLE__)
+	ptr->long_state  = (uint8_t*)mmap(0, MEMORY, PROT_READ | PROT_WRITE,
+		MAP_PRIVATE | MAP_ANON, VM_FLAGS_SUPERPAGE_SIZE_2MB, 0);
+#else
 	ptr->long_state = (uint8_t*)mmap(0, MEMORY, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | MAP_POPULATE, 0, 0);
+#endif
 
 	if (ptr->long_state == MAP_FAILED)
 	{
