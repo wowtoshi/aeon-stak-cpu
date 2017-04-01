@@ -457,7 +457,7 @@ void minethd::work_main()
 
 void minethd::double_work_main()
 {
-	int hashes = 2;
+	const int hashes = 2;
 	cryptonight_ctx* ctx[hashes];
 	uint64_t iCount = 0;
 	uint64_t *piHashVal[hashes];
