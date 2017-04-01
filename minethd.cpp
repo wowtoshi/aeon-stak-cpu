@@ -301,8 +301,8 @@ bool minethd::self_test()
 			cryptonight_hash_ctx_np("nado", 4, results + 32*z, ctx0);
 
 		cryptonight_ctx* ctx[8] = {ctx0, ctx1, ctx2, ctx3, ctx4, ctx4, ctx4, ctx4};
-		cryptonight_double_hash_ctx("nadanadonadonadonadonadonadonado", 4, out, ctx, 8);
-		bResult = memcmp(out, results, 32*4) == 0;
+		cryptonight_double_hash_ctx("nadanadonadonadonadonadonadonado", 4, out, ctx);
+		bResult = memcmp(out, results, 32*2) == 0;
 	}
 	else
 	{
@@ -457,7 +457,8 @@ void minethd::work_main()
 
 void minethd::double_work_main()
 {
-	const int hashes = 2;
+	// remember to also change in crypto/cryptonight_aesni.h
+	static const int hashes = 2;
 	cryptonight_ctx* ctx[hashes];
 	uint64_t iCount = 0;
 	uint64_t *piHashVal[hashes];
@@ -516,7 +517,7 @@ void minethd::double_work_main()
 
 			for(int i=0; i<hashes; i++)
 				*piNonce[i] = ++iNonce;
-			cryptonight_double_hash_ctx(bDoubleWorkBlob, oWork.iWorkSize, bDoubleHashOut, ctx, hashes);
+			cryptonight_double_hash_ctx(bDoubleWorkBlob, oWork.iWorkSize, bDoubleHashOut, ctx);
 
 			for(int i=0;i<hashes;i++){
 				if (*piHashVal[i] < oWork.iTarget)

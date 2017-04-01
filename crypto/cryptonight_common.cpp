@@ -205,7 +205,7 @@ void cryptonight_hash_ctx_np(const void* input, size_t len, void* output, crypto
 	cryptonight_hash<0x40000, MEMORY, false, false>(input, len, output, ctx);
 }
 
-void cryptonight_double_hash_ctx(const void*  input, size_t len, void* output, cryptonight_ctx** ctx, int size)
+void cryptonight_double_hash_ctx(const void*  input, size_t len, void* output, cryptonight_ctx** ctx)
 {
-	cryptonight_double_hash<0x40000, MEMORY, false, false>(input, len, output, ctx, size);
+	cryptonight_double_hash<0x40000, MEMORY, false, false>(input, len, output, ctx);
 }
