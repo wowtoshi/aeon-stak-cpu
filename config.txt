@@ -94,9 +94,9 @@
  * wallet_address - Your wallet, or pool login.
  * pool_password  - Can be empty in most cases or "x".
  */
-"pool_address" : "aeon.sumominer.com:3334",
-"wallet_address" : "WmrxdiPhtGaUpRud8fMgHdLpdS4oXoQa7dJ6bCp7mhey9bu4JSzU225LCLNHSizATDCLuTbPZxaWMW5dVgVRr3R92qpizKzQk.8192",
-"pool_password" : "x",
+"pool_address" : "",
+"wallet_address" : "",
+"pool_password" : "",
 
 /*
  * Network timeouts.
