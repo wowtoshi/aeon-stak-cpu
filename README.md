@@ -1,5 +1,5 @@
 ### AEON-Stak-CPU - AEON mining software (fork of fireice-uk/xmr-stak-cpu) with AEON and customizable low power mode
-[![Build status](https://ci.appveyor.com/api/projects/status/6vrjywu9nsuphf7i/branch/master?svg=true)](https://ci.appveyor.com/project/shyba/xmr-stak-cpu/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/kvp57pa9b70t1nvh?svg=true)](https://ci.appveyor.com/project/wowtoshi/aeon-stak-cpu)
 
 **This fork changes it for AEON and makes `low_power` mode customizable. This mode will solve X hashes per thread. Change the values in `crypto/cryptonight_aesni.h` and `minethd.cpp`. Default is 2.**
 
@@ -14,7 +14,7 @@ It may become a PR and get merged back to upstream if the original one wants AEO
 1) Edit the config.txt file to enter your pool login and password. 
 2) Double click the exe file. 
 
-XMR-Stak should compile on any C++11 compliant compiler. Windows compiler is assumed to be MSVC 2015 CE. MSVC build environment is not vendored.
+AEON-Stak-CPU should compile on any C++11 compliant compiler. Windows compiler is assumed to be MSVC 2015 CE. MSVC build environment is not vendored.
 ```
 
 #### Usage on Linux (Debian-based distros)
