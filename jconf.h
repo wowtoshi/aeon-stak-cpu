@@ -32,6 +32,10 @@ public:
 
 	slow_mem_cfg GetSlowMemSetting();
 
+	bool GetTlsSetting();
+	bool TlsSecureAlgos();
+	const char* GetTlsFingerprint();
+
 	const char* GetPoolAddress();
 	const char* GetPoolPwd();
 	const char* GetWalletAddress();
@@ -39,8 +43,11 @@ public:
 	uint64_t GetVerboseLevel();
 	uint64_t GetAutohashTime();
 
+	const char* GetOutputFile();
+
 	uint64_t GetCallTimeout();
 	uint64_t GetNetRetry();
+	uint64_t GetGiveUpLimit();
 
 	uint16_t GetHttpdPort();
 

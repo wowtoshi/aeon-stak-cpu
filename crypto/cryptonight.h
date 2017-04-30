@@ -12,7 +12,7 @@ extern "C" {
 
 typedef struct {
 	uint8_t hash_state[224]; // Need only 200, explicit align
-	uint8_t* long_state __attribute__ ((aligned (4096)));
+	uint8_t* long_state;
 	uint8_t ctx_info[24]; //Use some of the extra memory for flags
 } cryptonight_ctx;
 
@@ -27,7 +27,7 @@ void cryptonight_free_ctx(cryptonight_ctx* ctx);
 void cryptonight_hash_ctx(const void* input, size_t len, void* output, cryptonight_ctx* ctx);
 void cryptonight_hash_ctx_soft(const void* input, size_t len, void* output, cryptonight_ctx* ctx);
 void cryptonight_hash_ctx_np(const void* input, size_t len, void* output, cryptonight_ctx* ctx);
-void cryptonight_double_hash_ctx(const void*  input, size_t len, void* output, cryptonight_ctx** ctx, int size);
+void cryptonight_double_hash_ctx(const void*  input, size_t len, void* output, cryptonight_ctx** ctx);
 
 #ifdef __cplusplus
 }

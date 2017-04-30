@@ -1,3 +1,26 @@
+/*
+  * This program is free software: you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation, either version 3 of the License, or
+  * any later version.
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  * GNU General Public License for more details.
+  *
+  * You should have received a copy of the GNU General Public License
+  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  *
+  * Additional permission under GNU GPL version 3 section 7
+  *
+  * If you modify this Program, or any covered work, by linking or combining
+  * it with OpenSSL (or a modified version of that library), containing parts
+  * covered by the terms of OpenSSL License and SSLeay License, the licensors
+  * of this Program grant you additional permission to convey the resulting work.
+  *
+  */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -8,6 +31,8 @@
 #include "console.h"
 #include "executor.h"
 #include "jconf.h"
+
+#include "webdesign.h"
 
 #ifdef _WIN32
 #include "libmicrohttpd/microhttpd.h"
@@ -40,38 +65,60 @@ int httpd::req_handler(void * cls,
 	*ptr = nullptr;
 
 	std::string str;
-	if(strcasecmp(url, "/h") == 0 || strcasecmp(url, "/hashrate") == 0)
+	if(strcasecmp(url, "/style.css") == 0)
 	{
-		str.append("<html><head><title>Hashrate Report</title></head><body><pre>");
+		const char* req_etag = MHD_lookup_connection_value(connection, MHD_HEADER_KIND, "If-None-Match");
+
+		if(req_etag != NULL && strcmp(req_etag, sHtmlCssEtag) == 0)
+		{ //Cache hit
+			rsp = MHD_create_response_from_buffer(0, nullptr, MHD_RESPMEM_PERSISTENT);
+
+			int ret = MHD_queue_response(connection, MHD_HTTP_NOT_MODIFIED, rsp);
+			MHD_destroy_response(rsp);
+			return ret;
+		}
+
+		rsp = MHD_create_response_from_buffer(sHtmlCssSize, (void*)sHtmlCssFile, MHD_RESPMEM_PERSISTENT);
+		MHD_add_response_header(rsp, "ETag", sHtmlCssEtag);
+		MHD_add_response_header(rsp, "Content-Type", "text/css; charset=utf-8");
+	}
+	else if(strcasecmp(url, "/h") == 0 || strcasecmp(url, "/hashrate") == 0)
+	{
 		executor::inst()->get_http_report(EV_HTML_HASHRATE, str);
-		str.append("</pre></body></html>");
 
 		rsp = MHD_create_response_from_buffer(str.size(), (void*)str.c_str(), MHD_RESPMEM_MUST_COPY);
+		MHD_add_response_header(rsp, "Content-Type", "text/html; charset=utf-8");
 	}
 	else if(strcasecmp(url, "/c") == 0 || strcasecmp(url, "/connection") == 0)
 	{
-		str.append("<html><head><title>Connection Report</title></head><body><pre>");
 		executor::inst()->get_http_report(EV_HTML_CONNSTAT, str);
-		str.append("</pre></body></html>");
 
 		rsp = MHD_create_response_from_buffer(str.size(), (void*)str.c_str(), MHD_RESPMEM_MUST_COPY);
+		MHD_add_response_header(rsp, "Content-Type", "text/html; charset=utf-8");
 	}
 	else if(strcasecmp(url, "/r") == 0 || strcasecmp(url, "/results") == 0)
 	{
-		str.append("<html><head><title>Results Report</title></head><body><pre>");
 		executor::inst()->get_http_report(EV_HTML_RESULTS, str);
-		str.append("</pre></body></html>");
 
 		rsp = MHD_create_response_from_buffer(str.size(), (void*)str.c_str(), MHD_RESPMEM_MUST_COPY);
+		MHD_add_response_header(rsp, "Content-Type", "text/html; charset=utf-8");
 	}
 	else
 	{
-		char buffer[1024];
-		snprintf(buffer, sizeof(buffer), "<html><head><title>Error</title></head><body>"
-			"<pre>Unkown url %s - please use /h, /r or /c as url</pre></body></html>", url);
+		//Do a 302 redirect to /h
+		char loc_path[256];
+		const char* host_val = MHD_lookup_connection_value(connection, MHD_HEADER_KIND, "Host");
 
-		rsp = MHD_create_response_from_buffer(strlen(buffer),
-		(void*)buffer, MHD_RESPMEM_MUST_COPY);
+		if(host_val != nullptr)
+			snprintf(loc_path, sizeof(loc_path), "http://%s/h", host_val);
+		else
+			snprintf(loc_path, sizeof(loc_path), "/h");
+
+		rsp = MHD_create_response_from_buffer(0, nullptr, MHD_RESPMEM_PERSISTENT);
+		int ret = MHD_queue_response(connection, MHD_HTTP_TEMPORARY_REDIRECT, rsp);
+		MHD_add_response_header(rsp, "Location", loc_path);
+		MHD_destroy_response(rsp);
+		return ret;
 	}
 
 	int ret = MHD_queue_response(connection, MHD_HTTP_OK, rsp);

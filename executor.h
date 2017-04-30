@@ -27,6 +27,10 @@ public:
 	inline void push_event(ex_event&& ev) { oEventQ.push(std::move(ev)); }
 	void push_timed_event(ex_event&& ev, size_t sec);
 
+	constexpr static size_t invalid_pool_id = 0;
+	constexpr static size_t dev_pool_id = 1;
+	constexpr static size_t usr_pool_id = 2;
+
 private:
 	struct timed_event
 	{
@@ -43,12 +47,6 @@ private:
 	// We will divide up this period according to the config setting
 	constexpr static size_t iDevDonatePeriod = 100 * 60;
 
-	constexpr static size_t invalid_pool_id = 0;
-	constexpr static size_t dev_pool_id = 1;
-	constexpr static size_t usr_pool_id = 2;
-
-	//std::atomic<size_t> iDevDisconnectCountdown;
-	//std::atomic<size_t> iReconnectCountdown;
 	std::list<timed_event> lTimedEvents;
 	std::mutex timed_event_mutex;
 	thdq<ex_event> oEventQ;
@@ -76,12 +74,18 @@ private:
 	void result_report(std::string& out);
 	void connection_report(std::string& out);
 
+	void http_hashrate_report(std::string& out);
+	void http_result_report(std::string& out);
+	void http_connection_report(std::string& out);
+
 	void http_report(ex_event_name ev);
 	void print_report(ex_event_name ev);
 
 	std::string* pHttpString = nullptr;
 	std::promise<void> httpReady;
 	std::mutex httpMutex;
+
+	size_t iReconnectAttempts = 0;
 
 	struct sck_error_log
 	{
@@ -136,8 +140,8 @@ private:
 	std::array<size_t, 10> iTopDiff { { } }; //Initialize to zero
 
 	std::chrono::system_clock::time_point tPoolConnTime;
-	size_t iPoolHashes;
-	uint64_t iPoolDiff;
+	size_t iPoolHashes = 0;
+	uint64_t iPoolDiff = 0;
 
 	// Set it to 16 bit so that we can just let it grow
 	// Maximum realistic growth rate - 5MB / month

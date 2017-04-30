@@ -8,10 +8,13 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     endif()
 endif()
 
-find_library(MHTD NAMES microhttpd)
+find_library(MHTD NAMES microhttpd microhttpd-10 libmicrohttpd libmicrohttpd-dll)
 if("${MHTD}" STREQUAL "MHTD-NOTFOUND")
     message(FATAL_ERROR "libmicrohttpd is required")
 endif()
+
+find_package(OpenSSL REQUIRED)
+include_directories(${OPENSSL_INCLUDE_DIR})
 
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CONFIGURATION_TYPES "RELEASE;STATIC")
@@ -30,6 +33,6 @@ set(EXECUTABLE_OUTPUT_PATH "bin")
 file(GLOB SOURCES "crypto/*.c" "crypto/*.cpp" "*.cpp")
 
 add_executable(xmr-stak-cpu ${SOURCES})
-target_link_libraries(xmr-stak-cpu pthread microhttpd)
+target_link_libraries(xmr-stak-cpu pthread microhttpd crypto ssl)
  
 

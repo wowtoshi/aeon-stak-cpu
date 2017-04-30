@@ -11,6 +11,14 @@
   *
   * You should have received a copy of the GNU General Public License
   * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  *
+  * Additional permission under GNU GPL version 3 section 7
+  *
+  * If you modify this Program, or any covered work, by linking or combining
+  * it with OpenSSL (or a modified version of that library), containing parts
+  * covered by the terms of OpenSSL License and SSLeay License, the licensors
+  * of this Program grant you additional permission to convey the resulting work.
+  *
   */
 
 #include <assert.h>
@@ -29,12 +37,25 @@ void thd_setaffinity(std::thread::native_handle_type h, uint64_t cpu_id)
 #else
 #include <pthread.h>
 
+#if defined(__APPLE__)
+#include <mach/thread_policy.h>
+#include <mach/thread_act.h>
+#define SYSCTL_CORE_COUNT   "machdep.cpu.core_count"
+#endif
+
 void thd_setaffinity(std::thread::native_handle_type h, uint64_t cpu_id)
 {
+#if defined(__APPLE__)
+	thread_port_t mach_thread;
+	thread_affinity_policy_data_t policy = { cpu_id };
+	mach_thread = pthread_mach_thread_np(h);
+	thread_policy_set(mach_thread, THREAD_AFFINITY_POLICY, (thread_policy_t)&policy, 1);
+#else
 	cpu_set_t mn;
 	CPU_ZERO(&mn);
 	CPU_SET(cpu_id, &mn);
 	pthread_setaffinity_np(h, sizeof(cpu_set_t), &mn);
+#endif
 }
 #endif // _WIN32
 
@@ -95,6 +116,10 @@ double telemetry::calc_telemetry_data(size_t iLastMilisec, size_t iThread)
 	}
 
 	if (!bHaveFullSet || iEarliestStamp == 0 || iLastestStamp == 0)
+		return nan("");
+
+	//Don't think that can happen, but just in case
+	if (iLastestStamp - iEarliestStamp == 0)
 		return nan("");
 
 	double fHashes, fTime;
@@ -276,8 +301,8 @@ bool minethd::self_test()
 			cryptonight_hash_ctx_np("nado", 4, results + 32*z, ctx0);
 
 		cryptonight_ctx* ctx[8] = {ctx0, ctx1, ctx2, ctx3, ctx4, ctx4, ctx4, ctx4};
-		cryptonight_double_hash_ctx("nadanadonadonadonadonadonadonado", 4, out, ctx, 8);
-		bResult = memcmp(out, results, 32*4) == 0;
+		cryptonight_double_hash_ctx("nadanadonadonadonadonadonadonado", 4, out, ctx);
+		bResult = memcmp(out, results, 32*2) == 0;
 	}
 	else
 	{
@@ -317,7 +342,12 @@ std::vector<minethd*>* minethd::thread_starter(miner_work& pWork)
 		minethd* thd = new minethd(pWork, i, cfg.bDoubleMode, cfg.bNoPrefetch);
 
 		if(cfg.iCpuAff >= 0)
+		{
+#if defined(__APPLE__)
+			printer::inst()->print_msg(L1, "WARNING on MacOS thread affinity is only advisory.");
+#endif
 			thd_setaffinity(thd->oWorkThd.native_handle(), cfg.iCpuAff);
+		}
 
 		pvThreads->push_back(thd);
 
@@ -427,17 +457,18 @@ void minethd::work_main()
 
 void minethd::double_work_main()
 {
-	int SIZE = 20;
-	cryptonight_ctx* ctx[SIZE];
+	// remember to also change in crypto/cryptonight_aesni.h
+	static const int hashes = 2;
+	cryptonight_ctx* ctx[hashes];
 	uint64_t iCount = 0;
-	uint64_t *piHashVal[SIZE];
-	uint32_t *piNonce[SIZE];
-	uint8_t bDoubleHashOut[32*SIZE];
+	uint64_t *piHashVal[hashes];
+	uint32_t *piNonce[hashes];
+	uint8_t bDoubleHashOut[32*hashes];
 	uint8_t	bDoubleWorkBlob[sizeof(miner_work::bWorkBlob) * 5];
 	uint32_t iNonce;
 	job_result res;
 
-	for(int i=0; i<SIZE; i++){
+	for(int i=0; i<hashes; i++){
 		ctx[i] = minethd_alloc_ctx();
 		piHashVal[i] = (uint64_t*)(bDoubleHashOut + (32*i) + 24);
 		piNonce[i] = nullptr;
@@ -458,7 +489,7 @@ void minethd::double_work_main()
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 			consume_work();
-			for(int i=0; i<SIZE; i++){
+			for(int i=0; i<hashes; i++){
 				memcpy(bDoubleWorkBlob + i*oWork.iWorkSize, oWork.bWorkBlob, oWork.iWorkSize);
 				piNonce[i] = (uint32_t*)(bDoubleWorkBlob + i*oWork.iWorkSize + 39);
 			}
@@ -482,27 +513,27 @@ void minethd::double_work_main()
 				iTimestamp.store(iStamp, std::memory_order_relaxed);
 			}
 
-			iCount += SIZE;
+			iCount += hashes;
 
-			for(int i=0; i<SIZE; i++)
+			for(int i=0; i<hashes; i++)
 				*piNonce[i] = ++iNonce;
-			cryptonight_double_hash_ctx(bDoubleWorkBlob, oWork.iWorkSize, bDoubleHashOut, ctx, SIZE);
+			cryptonight_double_hash_ctx(bDoubleWorkBlob, oWork.iWorkSize, bDoubleHashOut, ctx);
 
-			for(int i=0;i<SIZE;i++){
+			for(int i=0;i<hashes;i++){
 				if (*piHashVal[i] < oWork.iTarget)
-					executor::inst()->push_event(ex_event(job_result(oWork.sJobID, iNonce-(SIZE-i-1), bDoubleHashOut + 32*i), oWork.iPoolId));
+					executor::inst()->push_event(ex_event(job_result(oWork.sJobID, iNonce-(hashes-i-1), bDoubleHashOut + 32*i), oWork.iPoolId));
 			}
 
 			std::this_thread::yield();
 		}
 
 		consume_work();
-		for(int i=0; i<SIZE; i++){
+		for(int i=0; i<hashes; i++){
 			memcpy(bDoubleWorkBlob + i*oWork.iWorkSize, oWork.bWorkBlob, oWork.iWorkSize);
 			if(i>0) {piNonce[i] = (uint32_t*)(bDoubleWorkBlob + i*oWork.iWorkSize + 39);}
 		}
 	}
 
-	for(int i=0; i<SIZE; i++)
+	for(int i=0; i<hashes; i++)
 		cryptonight_free_ctx(ctx[i]);
 }
